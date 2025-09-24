@@ -11,7 +11,8 @@ export default function Home() {
     const s1Ref = useRef<HTMLInputElement>(null);
     const s2Ref = useRef<HTMLInputElement>(null);
 
-    const { initializeMatrix, handleNextStep, matrix } = useEditDistance();
+    const { initializeMatrix, handleRun, handleNextStep, matrix } =
+        useEditDistance();
 
     return (
         <main className="flex h-screen w-screen items-center bg-gray-900">
@@ -23,6 +24,7 @@ export default function Home() {
 
             <Matrix
                 matrix={matrix}
+                handleRun={handleRun}
                 handleNextStep={handleNextStep}
             />
         </main>

@@ -4,27 +4,55 @@ import { MatrixType } from "../types";
 
 export const useEditDistance = () => {
     const [matrix, setMatrix] = useState<MatrixType>(() => startMatrix());
-    const index = useRef<number>(0);
+    const IsRunning = useRef<boolean>(false);
+    const chainIndex = useRef<number>(0);
     const chain: ((prev: MatrixType) => MatrixType)[] = [
-        stepForward,
         stepResult,
+        stepForward,
     ];
 
     const initializeMatrix = (s1?: string, s2?: string) => {
         setMatrix(startMatrix(s1, s2));
     };
 
-    const handleNextStep = () => {
-        setMatrix((prev) => chain[index.current](prev));
+    const handleRun = async () => {
+        if (IsRunning.current) {
+            return;
+        }
+        IsRunning.current = true;
 
-        const newIndex: number = index.current + 1;
+        const matrixCurrentPosition: number = matrix.i * matrix.j;
+        const matrixLength: number = matrix.s1Size * matrix.s2Size + 1;
+
+        for (let i: number = matrixCurrentPosition; i < matrixLength; i++) {
+            for (let j: number = chainIndex.current; j < chain.length; j++) {
+                setMatrix((prev) => chain[j](prev));
+                await new Promise((resolve) => setTimeout(resolve, 200));
+            }
+        }
+
+        IsRunning.current = false;
+        chainIndex.current = matrixLength;
+    };
+
+    const handleNextStep = async () => {
+        if (IsRunning.current) {
+            return;
+        }
+        IsRunning.current = true;
+
+        setMatrix((prev) => chain[chainIndex.current](prev));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const newIndex: number = chainIndex.current + 1;
         if (newIndex > chain.length - 1) {
-            index.current = 0;
-
+            IsRunning.current = false;
+            chainIndex.current = 0;
             return;
         }
 
-        index.current = newIndex;
+        IsRunning.current = false;
+        chainIndex.current = newIndex;
     };
 
     const handlePreviousStep = () => {
@@ -37,6 +65,7 @@ export const useEditDistance = () => {
 
     return {
         initializeMatrix,
+        handleRun,
         handleNextStep,
         handlePreviousStep,
         matrix,
@@ -83,10 +112,6 @@ const startMatrix = (s1?: string, s2?: string): MatrixType => {
 };
 
 const stepForward = (prev: MatrixType): MatrixType => {
-    if (!prev.s1 || !prev.s2) {
-        return prev;
-    }
-
     const { i, j, s1Size, s2Size } = prev;
     const newMatrix = prev.matrix.map((row) => [...row]);
 
@@ -109,10 +134,6 @@ const stepForward = (prev: MatrixType): MatrixType => {
 };
 
 const stepResult = (prev: MatrixType): MatrixType => {
-    if (!prev.s1 || !prev.s2) {
-        return prev;
-    }
-
     const { s1, s2, i, j } = prev;
     const newMatrix = prev.matrix.map((row) => [...row]);
 

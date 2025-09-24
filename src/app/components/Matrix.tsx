@@ -4,10 +4,11 @@ import { Label } from "./Label";
 
 type MatrixProps = {
     matrix: MatrixType;
+    handleRun(): void;
     handleNextStep(): void;
 };
 
-export const Matrix = ({ matrix, handleNextStep }: MatrixProps) => {
+export const Matrix = ({ matrix, handleRun, handleNextStep }: MatrixProps) => {
     return (
         <>
             {matrix.matrix.length != 0 && (
@@ -79,14 +80,23 @@ export const Matrix = ({ matrix, handleNextStep }: MatrixProps) => {
                                     }),
                                 )}
                             </div>
-
-                            <button
-                                onClick={handleNextStep}
-                                className="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition hover:bg-green-700"
-                            >
-                                Próximo Passo
-                            </button>
                         </div>
+                    </div>
+
+                    <div className="my-6 flex gap-4">
+                        <button
+                            onClick={handleRun}
+                            className="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition hover:bg-green-700"
+                        >
+                            Rodar
+                        </button>
+
+                        <button
+                            onClick={handleNextStep}
+                            className="rounded-lg bg-green-600 px-4 py-2 font-semibold text-white transition hover:bg-green-700"
+                        >
+                            Próximo Passo
+                        </button>
                     </div>
                 </div>
             )}
